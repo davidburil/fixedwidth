@@ -12,8 +12,28 @@ func InferColumnsIndex(fileName string, sampleValue int) {
 
 	dataSampleFromFile := extractDataSamplefromFile(fileName, sampleValue)
 
-	print(dataSampleFromFile)
+	inferColumnsIndexTest1(dataSampleFromFile)
 
+}
+
+func inferColumnsIndexTest1(data map[int][]bool) {
+
+	r := data[0]
+	var i []int
+
+	for _, linha := range data {
+		for i, coluna := range linha {
+			r[i] = r[i] || coluna
+		}
+	}
+
+	for key, value := range r {
+		if !value {
+			i = append(i, key)
+		}
+	}
+
+	println(i)
 }
 
 // extractDataSamplefromFile Extrai os dados de amostra do arquivo convertido para uma matrix de boleano.
