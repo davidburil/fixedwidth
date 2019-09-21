@@ -12,28 +12,35 @@ func InferColumnsIndex(fileName string, sampleValue int) {
 
 	dataSampleFromFile := extractDataSamplefromFile(fileName, sampleValue)
 
-	inferColumnsIndexTest1(dataSampleFromFile)
+	line := mergeLinesFromMatrix(dataSampleFromFile)
+
+	inferColumnsIndexMetodo1(line)
 
 }
 
-func inferColumnsIndexTest1(data map[int][]bool) {
+func inferColumnsIndexMetodo1(data []bool) []int {
 
-	r := data[0]
-	var i []int
+	var ret []int
+	valorAnterior := false
 
-	for _, linha := range data {
-		for i, coluna := range linha {
-			r[i] = r[i] || coluna
+	for key, value := range data {
+		if value && !valorAnterior {
+			ret = append(ret, key)
 		}
+		valorAnterior = value
 	}
 
-	for key, value := range r {
-		if !value {
-			i = append(i, key)
+	return ret
+}
+
+func mergeLinesFromMatrix(matrix map[int][]bool) []bool {
+	ret := matrix[0]
+	for _, line := range matrix {
+		for i, column := range line {
+			ret[i] = ret[i] || column
 		}
 	}
-
-	println(i)
+	return ret
 }
 
 // extractDataSamplefromFile Extrai os dados de amostra do arquivo convertido para uma matrix de boleano.
@@ -62,7 +69,6 @@ func extractDataSamplefromFile(fileName string, sampleValue int) map[int][]bool 
 
 // convertArrayByteToArrayBool converte um array de byte em um array de booleano.
 func convertArrayByteToArrayBool(data []byte) []bool {
-
 	var r []bool
 	for _, b := range data {
 		r = append(r, isNonWhiteSpace(b))
