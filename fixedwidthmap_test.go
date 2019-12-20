@@ -19,8 +19,10 @@ package fixedwithmap
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"testing"
 )
 
@@ -82,4 +84,51 @@ func readFile(file *os.File, columns []int) (map[int][]string, error) {
 	}
 
 	return retorno, nil
+}
+
+func TestRegex(t *testing.T) {
+	file, _ := os.Open("resources/dados2.txt")
+
+	reader := bufio.NewReader(file)
+
+	r, err := regexp.Compile(`.+?\s+`)
+
+	if err != nil {
+		fmt.Printf("There is a problem with your regexp.\n")
+		return
+	}
+
+	var columns []bool
+
+	for i := uint(0); i < uint(3); i++ {
+		line, _, _ := reader.ReadLine()
+
+		index := r.FindAllStringIndex(string(line), -1)
+
+		if columns == nil {
+			columns = make([]bool, len(line))
+		}
+
+		for len(columns) < len(line) {
+			columns = append(columns, false)
+		}
+
+		for _, value := range index {
+			for j := value[0] + 1; j < value[1]; j++ {
+				columns[j] = columns[j] || isNonWhiteSpace(line[j]) || i == 0
+			}
+		}
+
+	}
+
+	result := make([]uint, 0)
+
+	for key, value := range columns {
+		if !value {
+			result = append(result, uint(key))
+		}
+	}
+
+	fmt.Println(columns)
+	fmt.Println(result)
 }
