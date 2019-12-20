@@ -91,7 +91,7 @@ func TestRegex(t *testing.T) {
 
 	reader := bufio.NewReader(file)
 
-	r, err := regexp.Compile(`.+?\s+`)
+	r, err := regexp.Compile(`[^\s]+`)
 
 	if err != nil {
 		fmt.Printf("There is a problem with your regexp.\n")
@@ -115,18 +115,28 @@ func TestRegex(t *testing.T) {
 
 		for _, value := range index {
 			for j := value[0] + 1; j < value[1]; j++ {
-				columns[j] = columns[j] || isNonWhiteSpace(line[j]) || i == 0
+				columns[j] = true
 			}
 		}
+
+		fmt.Println(index)
 
 	}
 
 	result := make([]uint, 0)
 
+	valorAnterior := false
+	chaveAnterior := 0
+
 	for key, value := range columns {
-		if !value {
-			result = append(result, uint(key))
+
+		if value && !valorAnterior {
+			result = append(result, uint(chaveAnterior))
 		}
+
+		valorAnterior = value
+		chaveAnterior = key
+
 	}
 
 	fmt.Println(columns)
