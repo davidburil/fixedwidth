@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-package fixedwithmap
+package fixedwith
 
 import (
 	"bufio"
@@ -88,7 +88,7 @@ func readFile(file *os.File, columns []uint) (map[int][]string, error) {
 				continue
 			}
 			t = append(t, string(line[v:value]))
-			v = value
+			v = int(value)
 		}
 
 		t = append(t, string(line[v:]))

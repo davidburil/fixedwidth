@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-package fixedwithmap
+package fixedwith
 
 import (
 	"bufio"
