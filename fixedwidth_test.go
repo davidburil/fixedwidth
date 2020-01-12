@@ -30,7 +30,8 @@ import (
 func TestInferColumnsIndex(t *testing.T) {
 	s := strings.NewReader(`String              Bool  Int Int8 Int16 Int32 Int64 Uint Uint8 Uint16 Uint32 Uint64 Float32 Float64 Time                 
 Test String         true  -1  -2   -3    -4    -5    1    2     3      4      5      1.5     2.5     2017-12-27T13:48:03Z 
-Another test string false 0   0    0     0     0     0    0     0      0      0      0       0       0001-01-01T00:00:00Z `)
+Another test string false 0   0    0     0     0     0    0     0      0      0      0       0       0001-01-01T00:00:00Z 
+Another string test false 0   0    0     0     0     0    0     0      0      0      0       0       0001-01-01T00:00:00Z `)
 
 	bufioReader := bufio.NewReader(s)
 	indexColumn, _ := InferColumnsIndex(bufioReader, 0)
