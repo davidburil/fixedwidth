@@ -23,21 +23,35 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strings"
 	"testing"
 )
+
+func TestInferColumnsIndex(t *testing.T) {
+	s := strings.NewReader(`String              Bool  Int Int8 Int16 Int32 Int64 Uint Uint8 Uint16 Uint32 Uint64 Float32 Float64 Time                 
+Test String         true  -1  -2   -3    -4    -5    1    2     3      4      5      1.5     2.5     2017-12-27T13:48:03Z 
+Another test string false 0   0    0     0     0     0    0     0      0      0      0       0       0001-01-01T00:00:00Z `)
+
+	bufioReader := bufio.NewReader(s)
+	indexColumn, _ := InferColumnsIndex(bufioReader, 0)
+
+	fmt.Println(indexColumn)
+}
 
 func TestReadFile(t *testing.T) {
 
 	file, _ := os.Open("resources/dados2.txt")
 
-	i, _ := InferColumnsIndex(file, 200)
+	reader := bufio.NewReader(file)
+
+	i, _ := InferColumnsIndex(reader, 10)
 
 	readFile(file, i)
 
 }
 
 // readFile teste de leitura do arquivo.
-func readFile(file *os.File, columns []int) (map[int][]string, error) {
+func readFile(file *os.File, columns []uint) (map[int][]string, error) {
 
 	var retorno map[int][]string
 

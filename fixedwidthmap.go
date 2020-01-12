@@ -20,42 +20,26 @@ import (
 	"bufio"
 	"errors"
 	"io"
-	"os"
-	"unicode"
+	"regexp"
 )
 
-// InferColumnsIndex Metodo publico para fazer a inferência o index das colunas.
-func InferColumnsIndex(file *os.File, sampleValue uint) (columns []int, err error) {
+func InferColumnsIndex(reader *bufio.Reader, sampleValue uint) (columnsIndex []uint, err error) {
 
-	dataSampleFromFile, e := extractColumnArrayWhiteSpace(file, sampleValue)
-
-	if e != nil {
-		return nil, e
+	if reader == nil {
+		return nil, errors.New("the reader parameter is required")
 	}
 
-	columns, e = inferColumnsIndexAlignLeft(dataSampleFromFile)
-
-	return columns, e
-
-}
-
-// extractColumnArrayWhiteSpace Metodo responsável por extrair um array com o resultado do processamento da amostra.
-func extractColumnArrayWhiteSpace(file *os.File, sampleValue uint) (columns []bool, err error) {
-
-	if file == nil {
-		return nil, errors.New("the file parameter is required")
-	}
-
-	reader := bufio.NewReader(file)
+	var columns []bool
 
 	for i := uint(0); i < sampleValue || sampleValue == 0; i++ {
-		line, _, e := reader.ReadLine()
 
-		if e != nil && e != io.EOF {
-			return nil, e
+		line, _, err := reader.ReadLine()
+
+		if err != nil && err != io.EOF {
+			return nil, err
 		}
 
-		if e == io.EOF {
+		if err == io.EOF {
 			break
 		}
 
@@ -67,46 +51,42 @@ func extractColumnArrayWhiteSpace(file *os.File, sampleValue uint) (columns []bo
 			columns = append(columns, false)
 		}
 
-		for key, value := range line {
-			columns[key] = columns[key] || isNonWhiteSpace(value)
+		index := findAllStringIndex(line)
+
+		for _, value := range index {
+			for j := value[0] + 1; j < value[1]; j++ {
+				columns[j] = true
+			}
 		}
-
 	}
 
-	rewindFile(file)
+	result := parseColumIndex(columns)
 
-	return columns, nil
+	return result, nil
+
 }
 
-// rewindFile Metodo responsavel por voltar o ponteiro para o inicio do arquivo.
-func rewindFile(file *os.File) {
-	file.Seek(0, 0)
-}
-
-// inferColumnsIndexAlignLeft Metodo responsável por inferir as posicoes das colunas alinhadas a esquerda.
-func inferColumnsIndexAlignLeft(data []bool) (columns []int, err error) {
-
-	if data == nil || len(data) < 4 {
-		return nil, errors.New("the data parameter is required and must have at least 4 elements")
-	}
+func parseColumIndex(columns []bool) []uint {
+	result := make([]uint, 0)
 
 	beforeValue := false
+	beforeKey := 0
 
-	for key, value := range data {
+	for key, value := range columns {
+
 		if value && !beforeValue {
-			columns = append(columns, key)
+			result = append(result, uint(beforeKey))
 		}
+
 		beforeValue = value
-	}
+		beforeKey = key
 
-	if columns == nil {
-		return nil, errors.New("unable to identify columns")
 	}
-
-	return columns, nil
+	return result
 }
 
-// isNonWhiteSpace retorna true caso não seja um espaço em branco.
-func isNonWhiteSpace(b byte) bool {
-	return !unicode.IsSpace(rune(b))
+func findAllStringIndex(text []byte) [][]int {
+	r, _ := regexp.Compile(`[^\s]+`)
+
+	return r.FindAllStringIndex(string(text), -1)
 }
