@@ -11,5 +11,5 @@ Parsing a fixed-width file can be difficult. Either, the user has to know the co
  
 This package Go propose automated infer the columns.
  
-## Reference links
+### Reference links
   - https://dev.to/awwsmm/java-infer-column-widths-of-a-fixed-width-text-file-2hh0
