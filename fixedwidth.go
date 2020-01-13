@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+// Package fixedwith propose automated infer the columns in fixed-width text file
 package fixedwith
 
 import (
@@ -23,6 +24,7 @@ import (
 	"regexp"
 )
 
+// InferColumnsIndex Infer Column Widths of a Fixed-Width Text File
 func InferColumnsIndex(reader *bufio.Reader, sampleValue uint) (columnsIndex []uint, err error) {
 
 	if reader == nil {
@@ -60,13 +62,14 @@ func InferColumnsIndex(reader *bufio.Reader, sampleValue uint) (columnsIndex []u
 		}
 	}
 
-	result := parseColumIndex(columns)
+	result := parseColumnIndex(columns)
 
 	return result, nil
 
 }
 
-func parseColumIndex(columns []bool) []uint {
+// parseColumnIndex parse column index
+func parseColumnIndex(columns []bool) []uint {
 	result := make([]uint, 0)
 
 	beforeValue := false
@@ -85,6 +88,7 @@ func parseColumIndex(columns []bool) []uint {
 	return result
 }
 
+// findAllStringIndex build regex search columns in text file
 func findAllStringIndex(text []byte) [][]int {
 	r, _ := regexp.Compile(`[^\s]+`)
 
