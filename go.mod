@@ -1,3 +1,3 @@
-module github.com/davidburil/fixedwidthmap
+module github.com/davidburil/fixedwidth
 
-go 1.12
+go 1.13
