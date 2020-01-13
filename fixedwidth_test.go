@@ -18,11 +18,9 @@ package fixedwith
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"os"
-	"regexp"
 	"strings"
 	"testing"
 )
@@ -34,45 +32,41 @@ Another test string false 0   0    0     0     0     0    0     0      0      0 
 Another string test false 0   0    0     0     0     0    0     0      0      0      0       0       0001-01-01T00:00:00Z `)
 
 	bufioReader := bufio.NewReader(s)
-	indexColumn, _ := InferColumnsIndex(bufioReader, 0)
+	columnsIndex, _ := InferColumnsIndex(bufioReader, 0)
 
-	fmt.Println(indexColumn)
+	fmt.Println(columnsIndex)
 }
 
-func TestReadFile(t *testing.T) {
-
+func TestInferColumnsIndexAndPrintFile(t *testing.T) {
 	file, _ := os.Open("resources/dados2.txt")
 
 	reader := bufio.NewReader(file)
 
-	i, _ := InferColumnsIndex(reader, 10)
+	columnsIndex, _ := InferColumnsIndex(reader, 10)
 
-	readFile(file, i)
+	file.Seek(0, 0)
+
+	fmt.Println(columnsIndex)
+
+	printFile(reader, columnsIndex, 10)
 
 }
 
-// readFile teste de leitura do arquivo.
-func readFile(file *os.File, columns []uint) (map[int][]string, error) {
+func printFile(reader *bufio.Reader, columnsIndex []uint, linesPrint uint) {
 
-	var retorno map[int][]string
-
-	if file == nil {
-		return nil, errors.New("the file parameter is required")
+	if reader == nil {
+		panic("the file parameter is required")
 	}
 
-	if columns == nil {
-		return nil, errors.New("the columns parameter is required")
+	if columnsIndex == nil {
+		panic("the columns parameter is required")
 	}
 
-	retorno = make(map[int][]string)
-
-	reader := bufio.NewReader(file)
-
-	for i := 0; true; i++ {
+	for i := uint(0); i < linesPrint || linesPrint == 0; i++ {
 		line, _, err := reader.ReadLine()
 
 		if err != nil && err != io.EOF {
-			return nil, err
+			panic(err)
 		}
 
 		if err == io.EOF {
@@ -82,7 +76,7 @@ func readFile(file *os.File, columns []uint) (map[int][]string, error) {
 		var t []string
 		var v int
 
-		for _, value := range columns {
+		for _, value := range columnsIndex {
 
 			if value == 0 {
 				v = 0
@@ -94,66 +88,7 @@ func readFile(file *os.File, columns []uint) (map[int][]string, error) {
 
 		t = append(t, string(line[v:]))
 
-		retorno[i] = t
+		fmt.Println(t)
 
 	}
-
-	return retorno, nil
-}
-
-func TestRegex(t *testing.T) {
-	file, _ := os.Open("resources/dados2.txt")
-
-	reader := bufio.NewReader(file)
-
-	r, err := regexp.Compile(`[^\s]+`)
-
-	if err != nil {
-		fmt.Printf("There is a problem with your regexp.\n")
-		return
-	}
-
-	var columns []bool
-
-	for i := uint(0); i < uint(3); i++ {
-		line, _, _ := reader.ReadLine()
-
-		index := r.FindAllStringIndex(string(line), -1)
-
-		if columns == nil {
-			columns = make([]bool, len(line))
-		}
-
-		for len(columns) < len(line) {
-			columns = append(columns, false)
-		}
-
-		for _, value := range index {
-			for j := value[0] + 1; j < value[1]; j++ {
-				columns[j] = true
-			}
-		}
-
-		fmt.Println(index)
-
-	}
-
-	result := make([]uint, 0)
-
-	valorAnterior := false
-	chaveAnterior := 0
-
-	for key, value := range columns {
-
-		if value && !valorAnterior {
-			result = append(result, uint(chaveAnterior))
-		}
-
-		valorAnterior = value
-		chaveAnterior = key
-
-	}
-
-	fmt.Println(columns)
-	fmt.Println(result)
 }
